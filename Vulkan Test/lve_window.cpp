@@ -1,0 +1,51 @@
+#include "lve_window.hpp"
+
+// std
+#include <stdexcept>
+
+namespace lve{
+
+LveWindow::LveWindow( int w, int h, std::string name) : WIDTH(w), HEIGHT(h), windowName{name}{
+        
+    initWindow();
+    
+}
+
+LveWindow::~LveWindow( ){
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
+void LveWindow::initWindow( ){
+        
+    glfwInit();
+    glfwWindowHint( GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    
+    window = glfwCreateWindow(WIDTH, HEIGHT, windowName.c_str(), nullptr, nullptr);
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
+    
+}
+
+void LveWindow::createWindowSurface( VkInstance instance, VkSurfaceKHR *surface){
+    
+    if ( glfwCreateWindowSurface(instance, window, nullptr, surface ) != VK_SUCCESS ){
+        
+        throw std::runtime_error( "Failed to Create Window Surface!");
+    }
+    
+}
+
+void LveWindow::frameBufferResizeCallback( GLFWwindow *window, int width, int height ){
+    
+    auto lveWindow = reinterpret_cast<LveWindow *>(glfwGetWindowUserPointer(window));
+    lveWindow->frameBufferResized = true;
+    lveWindow->WIDTH = width;
+    lveWindow->HEIGHT = height;
+    
+}
+
+
+
+} // namespace lve ----- end
